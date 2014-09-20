@@ -16,22 +16,25 @@ set -e
 # Set home folder for current user.
 HOMEFOLDER=~
 # URL's from http://forum.bittorrent.com/topic/24781-latest-1282-build/
-btsyncdownurl=http://www.bittorrent.com/sync/downloads
+btsyncdownurl=http://getsync.com/download
 
 # Test the btsyncdownurl to see if it works.
 test2_url=`curl --silent -Is $btsyncdownurl | head -n 1 | sed -r 's/.* ([0-9]*) .*/\1/'`
+echo "$test2_url"
 if [ "$test2_url" != "200" ]; then
     echo version $1 not found.
-    exit 1
-fi
+    # exit 1
+else echo "btsync file found"; fi
 
 # Get the BTSync download page, and then read the version number.
 wget -P ~/ $btsyncdownurl
-version=$(perl -ne 'print $1 if s/.*Linux i386.glibc 2.3.<.a>.*<span>([\.\d]+)<.span>.*/\1/;' ~/downloads)
-rm ~/downloads
+version=$(perl -ne 'print $1 if s/.*Linux i386.glibc 2.3.<.a>.*<span>([\.\d]+)<.span>.*/\1/;' ~/download)
+echo "\$version is $version"
+# cat ~/download
+rm ~/download
 
-BTSYNC_64BITURL=http://syncapp.bittorrent.com/$version/btsync_x64-$version.tar.gz
-BTSYNC_32BITURL=http://syncapp.bittorrent.com/$version/btsync_i386-$version.tar.gz
+BTSYNC_64BITURL=http://download-new.utorrent.com/endpoint/btsync/os/linux-x64/track/stable
+BTSYNC_32BITURL=http://download-new.utorrent.com/endpoint/btsync/os/linux-i386/track/stable
 
 # Set the version of BTSYNC to use, based on 32bit or 64bit machine. Currently only works for x86 and x86_64 architectures.
 MACHINEARCH=$(uname -m)
@@ -140,8 +143,8 @@ installbtsyncconfig(){
   "webui" :
   {
     "listen" : "127.0.0.1:$BTPORTNUMBER"
-/*    ,"login" : "admin",
-    "password" : "admin"    */
+/*    ,"login" : "btsync",
+    "password" : "sync79"    */
   }
 
 /* !!! if you set shared folders in config file WebUI will be DISABLED !!!
@@ -321,11 +324,9 @@ removebtsync(){
 ###############################################################################
 
 
-while true; do
-    read -p "Do you want to install (i) BTSync for the first time, update (u) an existing install, remove (r) BTSync, or exit(e)? (i/u/r/e)?: " QUESTION
-    case $QUESTION in
+case "$1" in
     
-        [Ii]* ) 
+'--install') 
         echo "You asked to install BTSync for the first time on this machine."
         
         if [ -f "/etc/systemd/system/btsync@.service" -o -f "/usr/local/bin/btsync" -o -f "/usr/share/applications/btsync-user.desktop" ]; then
@@ -336,32 +337,34 @@ while true; do
         wgetbtsync
         installbtsyncconfig
         installbtsyncstartup
-        break;;
+        ;;
         
-        [Uu]* ) 
+        '--update') 
         echo "You asked to update BTSync."
         # Stop the BTSync service, update BTSync, start it again.
         sudo systemctl stop btsync@$USER.service
         wgetbtsync
         sudo systemctl start btsync@$USER.service
-        break;;
+        ;;
         
-        [Rr]* ) 
+        'remove') 
         echo "You asked to remove BTSync."
         removebtsync
         break;;
         
-        [Ee]* ) 
-        echo "You asked not to install, update, or remove BTSync."
-        break;;
-        
-        * ) echo "Please input i (install), u (update), r (remove), or e (exit).";;
-    esac
-done
+        *) 
+        echo; echo "ERROR"; echo "You asked not to install, update, or remove BTSync."; echo
+        echo "use: install_btsync.sh <switch>"; echo
+	echo " --install     Will install btsync on machine"
+	echo " --remove      Will remove btsync from machine"
+	echo " --update      Will update btsync to latest version"
+esac
+
 
 
 
 # Changelog
 #
+# 1.02 - (Sept 2014) Updated BTSync url again - glacian79.
 # 1.01 - Updated to add version detection of the BTSync url, as suggested by JimH44 on the BTSync forums.
 # 1.0 - Initial Release
