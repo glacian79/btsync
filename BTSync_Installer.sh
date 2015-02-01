@@ -71,7 +71,7 @@ fi
 # Port number for BTSync web-ui
 BTPORTNUMBER=8888
 
-echo "here3"
+
 ###############################################################################
 ##########################        Root Check        ###########################
 ###############################################################################
@@ -100,7 +100,7 @@ fi
 
 
 
-echo "here4"
+
 ###############################################################################
 ###########################        Functions        ###########################
 ###############################################################################
@@ -119,7 +119,7 @@ function wgetbtsync () {
 		* ) echo "Please answer yes or no.";;
 	esac
     done
-    echo "here1"
+
     # Second test if the URL is valid.
     test_url=`curl --silent -Is $url | head -n 1 | sed -r 's/.* ([0-9]*) .*/\1/'`
     if [ "$test_url" != "200" ]; then
@@ -133,7 +133,7 @@ function wgetbtsync () {
     
     }
 
-echo "here5"
+
 ###############################################################################
 # Function installbtsyncconfig: Install local btsync configuration file.
 ###############################################################################
@@ -200,7 +200,7 @@ EOL
 
     }   
 
- echo "here6"   
+ 
 ###############################################################################
 # Function installbtsyncstartup: Install btsync to run on startup as the current user.
 ###############################################################################
@@ -228,7 +228,7 @@ EOL
                                                                                                            
 echo "# Replace with linux users you want to run BTSync clients for                                              
 BTSYNC_USERS=\"$USER\"
-DAEMON=/usr/local/bin/btsync" | sudo tee /etc/init.d/btsync
+DAEMON=/usr/local/bin/btsync" | sudo tee -a /etc/init.d/btsync
 
 sudo sh -c "cat >>/etc/init.d/btsync" <<'EOL'
 start() {
@@ -305,7 +305,7 @@ EOL
     }
 
 
-echo "here7"
+
 ###############################################################################
 # Function removebtsync: Remove all traces of BTSync produced by this script.
 ###############################################################################
@@ -394,7 +394,7 @@ echo "Stop the BTSync service"
 ###############################################################################
 ##########################        Main Program       ##########################
 ###############################################################################
-echo "here2"
+
 case "$1" in
     
         '--install') 
